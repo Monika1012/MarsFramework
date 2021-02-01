@@ -26,11 +26,21 @@ namespace MarsFramework.Global
         public static ExtentTest test;
         public static ExtentReports extent;
         #endregion
-
+        
+        static Base() {
+            if (!Directory.Exists(ScreenshotPath)) {
+                Directory.CreateDirectory(ScreenshotPath);
+            }
+            if (!Directory.Exists(ReportPath)) {
+                Directory.CreateDirectory(ReportPath);
+            }
+        }
         #region setup and tear down
         [SetUp]
         public void Inititalize()
         {
+            string somePath = Path.Combine(basePath, @"ExcelData");
+           
             // advisasble to read this documentation before proceeding http://extentreports.relevantcodes.com/net/
             switch (Browser)
             {
@@ -49,9 +59,10 @@ namespace MarsFramework.Global
 
             extent = new ExtentReports(ReportPath, false, DisplayOrder.NewestFirst);
             extent.LoadConfig(MarsResource.ReportXMLPath);
-
+            test = extent.StartTest(TestContext.CurrentContext.Test.Name);
             #endregion
-
+            //Navigate to the application url
+            NavigateToHomePage();
             if (MarsResource.IsLogin == "true")
             {
                 SignIn loginobj = new SignIn();
@@ -77,10 +88,15 @@ namespace MarsFramework.Global
             // calling Flush writes everything to the log file (Reports)
             extent.Flush();
             // Close the driver :)            
-            GlobalDefinitions.driver.Close();
+            //GlobalDefinitions.driver.Close();
             GlobalDefinitions.driver.Quit();
         }
         #endregion
+        public void NavigateToHomePage() {
+            string url = @"http://localhost:5000";
+            GlobalDefinitions.driver.Navigate().GoToUrl(url);
+        }
 
     }
+    
 }
